@@ -1,0 +1,66 @@
+{
+  "name": "@metronomed/proxy-sso",
+  "version": "0.0.0",
+  "description": "Shared auth-proxy SSO code for self-hosted apps behind Cloudflare Access or Pomerium",
+  "keywords": [
+    "sso",
+    "cloudflare-access",
+    "pomerium",
+    "auth-proxy",
+    "jwt",
+    "self-hosted"
+  ],
+  "homepage": "https://github.com/Metronomed/proxy-sso#readme",
+  "bugs": {
+    "url": "https://github.com/Metronomed/proxy-sso/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Metronomed/proxy-sso.git"
+  },
+  "license": "MIT",
+  "author": "Metronomed",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "default": "./dist/server/index.js"
+    },
+    "./web": {
+      "types": "./dist/web/index.d.ts",
+      "default": "./dist/web/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "oxlint --report-unused-disable-directives-severity=error .",
+    "lint:fix": "oxlint --report-unused-disable-directives-severity=error --fix .",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "test": "bun --bun vitest run",
+    "test:watch": "bun --bun vitest",
+    "validate": "bun run lint && bun run format:check && bun run typecheck && bun run build && bun run test",
+    "release": "bun scripts/release.js"
+  },
+  "dependencies": {
+    "jose": "^6.2.18"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "jsdom": "^31.0.1",
+    "oxfmt": "^0.79.0",
+    "oxlint": "^1.94.0",
+    "oxlint-tsgolint": "^7.0.2007",
+    "typescript": "^7.0.2",
+    "vitest": "5.1.0"
+  }
+}
