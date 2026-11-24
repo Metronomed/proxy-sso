@@ -1,5 +1,0 @@
-# Force LF in the working tree on all OSes.
-* text=auto eol=lf
-
-# Lock file - avoid noisy diffs and merge conflicts
-bun.lock -diff merge=binary
