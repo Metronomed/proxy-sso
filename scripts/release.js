@@ -1,24 +1,28 @@
 /**
- * @file Bumps the version and tags a commit that includes dist/
+ * @file Bumps the version and tags a dist-only build commit; run by the Release workflow
  */
 
 import { execSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const PACKAGE_PATH = resolve(ROOT, "package.json");
 const CHANGELOG_PATH = resolve(ROOT, "CHANGELOG.md");
 const BUMP_TYPES = ["patch", "minor", "major"];
+/** What a tag ships: the build, the manifest, and the license and readme. */
+const PACKAGE_FILES = ["dist", "package.json", "LICENSE", "README.md"];
 
 /**
  * Runs a shell command in the repo root.
  * @param {string} command - command line to run
+ * @param {NodeJS.ProcessEnv} [env] - environment for the command; defaults to this process's
  * @returns trimmed stdout
  */
-function run(command) {
+function run(command, env = process.env) {
   return execSync(command, {
     cwd: ROOT,
+    env,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "inherit"],
   }).trim();
@@ -105,16 +109,22 @@ function writeVersion(version) {
 }
 
 /**
- * Commits a fresh dist/ on a detached HEAD and tags it, keeping dist/ off main.
+ * Builds dist/ and tags a commit holding only {@link PACKAGE_FILES}, parented on the release commit.
  * @param {string} tag - tag name, e.g. "v1.2.3"
  */
 function tagBuild(tag) {
   runVisible("bun run build");
-  runVisible("git checkout --quiet --detach");
-  runVisible("git add --force dist");
-  runVisible(`git commit --quiet -m "Build ${tag}"`);
-  runVisible(`git tag --annotate ${tag} -m "${tag}"`);
-  runVisible("git checkout --quiet main");
+  const indexPath = run("git rev-parse --git-path release-index");
+  const env = { ...process.env, GIT_INDEX_FILE: indexPath };
+  rmSync(indexPath, { force: true });
+  try {
+    run(`git add --force -- ${PACKAGE_FILES.join(" ")}`, env);
+    const tree = run("git write-tree", env);
+    const commit = run(`git commit-tree ${tree} -p HEAD -m "Build ${tag}"`);
+    runVisible(`git tag --annotate ${tag} ${commit} -m "${tag}"`);
+  } finally {
+    rmSync(indexPath, { force: true });
+  }
 }
 
 const bumpType = process.argv[2] ?? "patch";
@@ -136,4 +146,4 @@ runVisible("git add package.json CHANGELOG.md");
 runVisible(`git commit --quiet -m "Release ${tag}"`);
 tagBuild(tag);
 
-console.log(`\nTagged ${tag}. Push with: git push origin main ${tag}`);
+console.log(`\nTagged ${tag}.`);

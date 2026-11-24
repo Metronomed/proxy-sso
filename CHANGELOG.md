@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Release tags hold only `dist/`, `package.json`, `LICENSE`, and `README.md`, so apps no longer install the sources and tests.
+
 ## [1.0.0] - 2026-11-23
 
 ### Added
