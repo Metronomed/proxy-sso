@@ -1,6 +1,6 @@
 {
   "name": "@metronomed/proxy-sso",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Shared auth-proxy SSO code for self-hosted apps behind Cloudflare Access or Pomerium",
   "keywords": [
     "sso",
