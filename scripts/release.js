@@ -58,17 +58,6 @@ function assertReleasable() {
 }
 
 /**
- * Formats today's local date.
- * @returns the date as YYYY-MM-DD
- */
-function localDate() {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${now.getFullYear()}-${month}-${day}`;
-}
-
-/**
  * Promotes the `## [Unreleased]` changelog section to a dated version header.
  * @param {string} version - version being released
  */
@@ -77,7 +66,7 @@ function promoteChangelog(version) {
   const unreleased = changelog.split("## [Unreleased]")[1]?.split(/\n## \[/)[0] ?? "";
   if (!/^- /m.test(unreleased)) throw new Error("CHANGELOG.md has no Unreleased entries");
 
-  const date = localDate();
+  const date = new Date().toISOString().slice(0, 10);
   const promoted = changelog.replace(
     "## [Unreleased]",
     `## [Unreleased]\n\n## [${version}] - ${date}`,
