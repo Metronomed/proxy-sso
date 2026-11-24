@@ -48,8 +48,7 @@
     "format:check": "oxfmt --check",
     "test": "bun --bun vitest run",
     "test:watch": "bun --bun vitest",
-    "validate": "bun run lint && bun run format:check && bun run typecheck && bun run build && bun run test",
-    "release": "bun scripts/release.js"
+    "validate": "bun run lint && bun run format:check && bun run typecheck && bun run build && bun run test"
   },
   "dependencies": {
     "jose": "^6.2.18"

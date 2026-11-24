@@ -191,10 +191,15 @@ workbox: {
 ```sh
 bun install
 bun run validate   # lint, format check, typecheck, build, test
-bun run release minor
 ```
 
-`release` needs a clean `main` and `## [Unreleased]` changelog entries. It tags a detached commit containing `dist/`, since Bun doesn't build git dependencies. Push with `git push origin main vX.Y.Z`; CI checks the tag and publishes the GitHub Release.
+To release, add `## [Unreleased]` changelog entries on `main`, then run the Release workflow:
+
+```sh
+gh workflow run release.yml -f bump=minor
+```
+
+It validates, commits the version bump to `main`, and tags a commit holding only `dist/`, `package.json`, `LICENSE`, and `README.md` (Bun doesn't build git dependencies). It installs that tag like an app would before pushing it and publishing the GitHub Release.
 
 ## License
 

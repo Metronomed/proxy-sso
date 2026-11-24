@@ -3,7 +3,6 @@ name: CI
 on:
   push:
     branches: [main]
-    tags: ["v*"]
   pull_request:
 
 permissions:
@@ -11,7 +10,6 @@ permissions:
 
 jobs:
   validate:
-    if: github.ref_type != 'tag'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -20,33 +18,3 @@ jobs:
           bun-version: 1.4.5
       - run: bun install --frozen-lockfile
       - run: bun run validate
-
-  # Apps install tags as-is: check the committed dist/, then publish the release.
-  release:
-    if: github.ref_type == 'tag'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
-        with:
-          bun-version: 1.4.5
-      - run: bun install --frozen-lockfile
-      - name: Tag version matches package.json
-        run: test "v$(jq -r .version package.json)" = "$GITHUB_REF_NAME"
-      - name: Committed dist matches a fresh build
-        run: |
-          bun run build
-          git diff --exit-code -- dist
-      - name: Entry points import
-        run: |
-          node -e 'import("@metronomed/proxy-sso/server").then((m) => { if (!m.verifyProxyIdentity) process.exit(1); })'
-          node -e 'import("@metronomed/proxy-sso/web").then((m) => { if (!m.isProxyRedirect) process.exit(1); })'
-      - name: Create GitHub Release from the changelog
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          awk -v h="## [${GITHUB_REF_NAME#v}]" 'index($0, h) == 1 {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md > notes.md
-          test -s notes.md
-          gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --notes-file notes.md

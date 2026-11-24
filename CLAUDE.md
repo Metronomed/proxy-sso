@@ -20,4 +20,4 @@ Run `bun run validate` (lint, format check, typecheck, build, test) after change
 
 ## Releasing
 
-`bun run release [patch|minor|major]` needs a clean `main` and `## [Unreleased]` entries in `CHANGELOG.md`. It commits the version bump on main, then commits the built `dist/` on a detached HEAD and tags that commit - `dist/` never lands on main. Push with `git push origin main vX.Y.Z`.
+Releases run in the Release workflow (`gh workflow run release.yml -f bump=patch|minor|major`), which needs `## [Unreleased]` entries in `CHANGELOG.md`. `scripts/release.js` commits the version bump on main and tags a separate commit holding only `dist/`, `package.json`, `LICENSE`, and `README.md` - `dist/` never lands on main.
